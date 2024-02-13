@@ -1,7 +1,14 @@
 def recipientEmailBuild = 'suryaanand456@gmail.com'
 def recipientEmailDeploy = 'suryaanand@infotracktelematics.com'
 def deploymentApprovalURL = "${env.BUILD_URL}input"
-def feedbackPlaceholder = 'Enter your feedback here'
+
+def reviewChangesValue
+def codingStandardsValue
+def adhereToRequirementsValue
+
+def deployReviewChangesValue
+def deployCodingStandardsValue
+def deployAdhereToRequirementsValue
 
 def emailBodyBuild = """
 <html>
@@ -21,7 +28,7 @@ def emailBodyBuild = """
             <p>
                 <a style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;" href="${deploymentApprovalURL}">Approve / Reject</a>
             </p>
-            <p>Your feedback is important to us. Please provide your comments or suggestions below:</p><br>
+            <p>Your feedback is important to us. Please provide your comments or suggestions.</p><br>
             <p>Regards,<br>Your Name</p>
         </div>
     </div>
@@ -47,7 +54,7 @@ def emailBodyDeploy = """
             <p>
                 <a style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;" href="${deploymentApprovalURL}">Approve / Reject</a>
             </p>
-            <p>Your feedback is important to us. Please provide your comments or suggestions below:</p><br>
+            <p>Your feedback is important to us. Please provide your comments or suggestions.</p><br>
             <p>Regards,<br>Your Name</p>
         </div>
     </div>
@@ -64,29 +71,42 @@ pipeline {
                 label 'mdvr'
             }
             steps {
-                git branch: 'socket', url: ''
+                git branch: 'socket', url: 'https://github.com/8919134556/MDVR-final.git'
             }
         }
 
-        stage('Build Approval Stage') {
+        stage('Build Approval') {
             steps {
                 script {
-                    // Approval for Build stage
-                    timeout(time: 5, unit: 'MINUTES') {
-                        emailext body: emailBodyBuild,
-                                 subject: 'Build Approval Required',
-                                 to: recipientEmailBuild,
-                                 mimeType: 'text/html'
-                        def approval = input message: 'Waiting for build approval',
-                                               ok: 'Proceed',
-                                               submitter: 'build-approver',
-                                               parameters: [
-                                                   string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
-                                                   booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
-                                               ]
-                        if (!approval['approve']) {
-                            error "Build stage approval denied."
+                    try {
+                        // Approval for Build stage
+                        timeout(time: 5, unit: 'MINUTES') {
+                            emailext body: emailBodyBuild,
+                                     subject: 'Build Approval Required',
+                                     to: recipientEmailBuild,
+                                     mimeType: 'text/html'
+
+                            def buildApproval = input message: 'Waiting for build approval',
+                                                  ok: 'Proceed',
+                                                  submitter: 'build-approver',
+                                                  parameters: [
+                                                      string(defaultValue: '', description: 'Have you thoroughly reviewed the changes incorporated in this build?', name: 'reviewChanges'),
+                                                      string(defaultValue: '', description: 'Are you confident that all modifications align with the project\'s coding standards and best practices?', name: 'codingStandards'),
+                                                      string(defaultValue: '', description: 'Does the completed build adhere to the specified project requirements and objectives?', name: 'adhereToRequirements')
+                                                  ]
+
+                            // Store parameters
+                            reviewChangesValue = buildApproval['reviewChanges']
+                            codingStandardsValue = buildApproval['codingStandards']
+                            adhereToRequirementsValue = buildApproval['adhereToRequirements']
+
+                            // Log user's responses
+                            echo "Build Approval Responses: ${buildApproval}"
                         }
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        echo "An error occurred during the build approval stage: ${err}"
+                        error "Build approval stage encountered an error. Build will not proceed."
                     }
                 }
             }
@@ -98,35 +118,48 @@ pipeline {
             }
             steps {
                 // Build Docker image
-                sh 'docker build -t 9989228601/MDVR-Socket:1 .'
+                sh 'docker build -t 9989228601/MDVR-Socket:1'
 
                 // Push Docker image to Docker Hub registry
-                withCredentials([usernamePassword(credentialsId: '377e98fd-7ba5-4b8f-a3a2-405f82ade900', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'your-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
                     sh 'docker push 9989228601/MDVR-Socket:1'
                 }
             }
         }
 
-        stage('Deployment Approval Stage') {
+        stage('Deployment Approval') {
             steps {
                 script {
-                    // Approval for Deploy stage
-                    timeout(time: 5, unit: 'MINUTES') {
-                        emailext body: emailBodyDeploy,
-                                 subject: 'Deployment Approval Required',
-                                 to: recipientEmailDeploy,
-                                 mimeType: 'text/html'
-                        def approval = input message: 'Waiting for deployment approval',
-                                               ok: 'Proceed',
-                                               submitter: 'deploy-approver',
-                                               parameters: [
-                                                   string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
-                                                   booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
-                                               ]
-                        if (!approval['approve']) {
-                            error "Deployment stage approval denied."
+                    try {
+                        // Approval for Deploy stage
+                        timeout(time: 5, unit: 'MINUTES') {
+                            emailext body: emailBodyDeploy,
+                                     subject: 'Deployment Approval Required',
+                                     to: recipientEmailDeploy,
+                                     mimeType: 'text/html'
+
+                            def deployApproval = input message: 'Waiting for deployment approval',
+                                                    ok: 'Proceed',
+                                                    submitter: 'deploy-approver',
+                                                    parameters: [
+                                                        string(defaultValue: '', description: 'Have you thoroughly reviewed the changes incorporated in this deployment?', name: 'reviewChanges'),
+                                                        string(defaultValue: '', description: 'Are you confident that all modifications align with the project\'s coding standards and best practices?', name: 'codingStandards'),
+                                                        string(defaultValue: '', description: 'Does the completed deployment adhere to the specified project requirements and objectives?', name: 'adhereToRequirements')
+                                                    ]
+
+                            // Store parameters
+                            deployReviewChangesValue = deployApproval['reviewChanges']
+                            deployCodingStandardsValue = deployApproval['codingStandards']
+                            deployAdhereToRequirementsValue = deployApproval['adhereToRequirements']
+
+                            // Log user's responses
+                            echo "Deploy Approval Responses: ${deployApproval}"
                         }
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        echo "An error occurred during the deployment approval stage: ${err}"
+                        error "Deployment approval stage encountered an error. Deployment will not proceed."
                     }
                 }
             }
