@@ -1,0 +1,13 @@
+
+
+# docker build command
+docker build -t gps_4040 .
+
+
+# docker container command and deattchaed mode
+docker run -v C:/suryaanand/docum/surya/MDVR-devops/docker-vol/GPS_4040_logs:/usr/src/app/GPS_4040_logs -d gps_4040
+
+
+# docker container loin inside mode 
+docker exec -it <container-id> /bin/bash
+
