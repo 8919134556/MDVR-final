@@ -1,0 +1,13 @@
+
+
+# docker build command
+docker build -t alarm_5040 .
+
+
+# docker container command and deattchaed mode
+docker run -v C:/suryaanand/docum/surya/MDVR-devops/docker-vol/Alarm_5040_logs:/usr/src/app/Alarm_5040_logs -d alarm_5040
+
+
+# docker container loin inside mode 
+docker exec -it <container-id> /bin/bash
+
