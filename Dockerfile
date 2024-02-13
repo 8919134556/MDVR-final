@@ -10,6 +10,9 @@ COPY ClientHandler.py hex_converter.py logger.py mdvr_config.ini raw_data_proces
 # Install required packages, including the SQL Server ODBC driver
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create a volume for persistent data
+VOLUME /usr/src/app/logs
+
 # Expose port 80
 EXPOSE 8010
 
