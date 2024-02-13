@@ -18,8 +18,10 @@ RUN apt-get update && \
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql17 && \
     pip install --no-cache-dir -r requirements.txt
 
-# Expose port 80
-EXPOSE 80
+
+# Create a volume for persistent data
+VOLUME /usr/src/app/logs
+
 
 # Run alarm_processor.py when the container launches
 CMD ["python", "./alarm_processor.py"]

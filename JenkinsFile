@@ -1,0 +1,178 @@
+def recipientEmailBuild = 'suryaanand456@gmail.com'
+def recipientEmailDeploy = 'suryaanand@infotracktelematics.com'
+def deploymentApprovalURL = "${env.BUILD_URL}input"
+
+def reviewChangesValue
+def codingStandardsValue
+def adhereToRequirementsValue
+
+def deployReviewChangesValue
+def deployCodingStandardsValue
+def deployAdhereToRequirementsValue
+
+def emailBodyBuild = """
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 16px;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #007bff; color: #fff; padding: 20px; text-align: center;">
+            <h2>Build Approval Required</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Dear Team,</p>
+            <p>Build of project <strong>${JOB_NAME}</strong> (build number ${BUILD_NUMBER}) requires your approval.</p>
+            <p>Please click the following button to approve or reject:</p>
+            <p>
+                <a style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;" href="${deploymentApprovalURL}">Approve / Reject</a>
+            </p>
+            <p>Your feedback is important to us. Please provide your comments or suggestions.</p><br>
+            <p>Regards,<br>Your Name</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+def emailBodyDeploy = """
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 16px;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #007bff; color: #fff; padding: 20px; text-align: center;">
+            <h2>Deployment Approval Required</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Dear Team,</p>
+            <p>Deployment of project <strong>${JOB_NAME}</strong> (build number ${BUILD_NUMBER}) requires your approval.</p>
+            <p>Please click the following button to approve or reject:</p>
+            <p>
+                <a style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;" href="${deploymentApprovalURL}">Approve / Reject</a>
+            </p>
+            <p>Your feedback is important to us. Please provide your comments or suggestions.</p><br>
+            <p>Regards,<br>Your Name</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            agent {
+                label 'mdvr'
+            }
+            steps {
+                git branch: 'ALARM_5040', url: 'https://github.com/8919134556/MDVR-final.git'
+            }
+        }
+
+        stage('Build Approval') {
+            steps {
+                script {
+                    try {
+                        // Approval for Build stage
+                        timeout(time: 5, unit: 'MINUTES') {
+                            emailext body: emailBodyBuild,
+                                     subject: 'Build Approval Required',
+                                     to: recipientEmailBuild,
+                                     mimeType: 'text/html'
+
+                            def buildApproval = input message: 'Waiting for build approval',
+                                                  ok: 'Proceed',
+                                                  submitter: 'build-approver',
+                                                  parameters: [
+                                                      string(defaultValue: '', description: 'Have you thoroughly reviewed the changes incorporated in this build?', name: 'reviewChanges'),
+                                                      string(defaultValue: '', description: 'Are you confident that all modifications align with the project\'s coding standards and best practices?', name: 'codingStandards'),
+                                                      string(defaultValue: '', description: 'Does the completed build adhere to the specified project requirements and objectives?', name: 'adhereToRequirements')
+                                                  ]
+
+                            // Store parameters
+                            reviewChangesValue = buildApproval['reviewChanges']
+                            codingStandardsValue = buildApproval['codingStandards']
+                            adhereToRequirementsValue = buildApproval['adhereToRequirements']
+
+                            // Log user's responses
+                            echo "Build Approval Responses: ${buildApproval}"
+                        }
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        echo "An error occurred during the build approval stage: ${err}"
+                        error "Build approval stage encountered an error. Build will not proceed."
+                    }
+                }
+            }
+        }
+
+        stage('Build and Push Docker Image') {
+            agent {
+                label 'mdvr'
+            }
+            steps {
+                // Build Docker image
+                sh 'docker build -t 9989228601/MDVR-alarm_5040:1 .'
+
+                // Push Docker image to Docker Hub registry
+                withCredentials([usernamePassword(credentialsId: 'your-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                    sh 'docker push 9989228601/MDVR-alarm_5040:1'
+                }
+            }
+        }
+
+        stage('Deployment Approval') {
+            steps {
+                script {
+                    try {
+                        // Approval for Deploy stage
+                        timeout(time: 5, unit: 'MINUTES') {
+                            emailext body: emailBodyDeploy,
+                                     subject: 'Deployment Approval Required',
+                                     to: recipientEmailDeploy,
+                                     mimeType: 'text/html'
+
+                            def deployApproval = input message: 'Waiting for deployment approval',
+                                                    ok: 'Proceed',
+                                                    submitter: 'deploy-approver',
+                                                    parameters: [
+                                                        string(defaultValue: '', description: 'Have you thoroughly reviewed the changes incorporated in this deployment?', name: 'reviewChanges'),
+                                                        string(defaultValue: '', description: 'Are you confident that all modifications align with the project\'s coding standards and best practices?', name: 'codingStandards'),
+                                                        string(defaultValue: '', description: 'Does the completed deployment adhere to the specified project requirements and objectives?', name: 'adhereToRequirements')
+                                                    ]
+
+                            // Store parameters
+                            deployReviewChangesValue = deployApproval['reviewChanges']
+                            deployCodingStandardsValue = deployApproval['codingStandards']
+                            deployAdhereToRequirementsValue = deployApproval['adhereToRequirements']
+
+                            // Log user's responses
+                            echo "Deploy Approval Responses: ${deployApproval}"
+                        }
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        echo "An error occurred during the deployment approval stage: ${err}"
+                        error "Deployment approval stage encountered an error. Deployment will not proceed."
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes Staging') {
+            agent {
+                label 'mdvr'
+            }
+            steps {
+                // Apply Kubernetes manifests to staging environment
+                sh 'kubectl apply -f deployment.yaml'
+            }
+        }
+    }
+}
