@@ -2,13 +2,12 @@ from hex_converter import HexConverter
 from db_inserting import DatabaseManager
 
 
-
 class AlarmDataProcessor:
     def __init__(self):
         self.hex_converter = HexConverter()
         self.database_manager = DatabaseManager()
         
-
+                                    
     def process_alarm_service_data(self, unit_no, messageType, polling_mode, ha, hb, panic, fuel_bar,over_speed,analog,
                                     seat_belt, previous_value, bit_data,version, ec, tp, SD_Type, SD_Status, device_Network_Type, 
                                     alert_datetime,dt, Up0, Dw0, Up1, Dw1, tm, Va, Cur, Pat):
@@ -483,15 +482,17 @@ class AlarmDataProcessor:
         polling_mode, ha, hb, panic, fuel_bar, over_speed, analog, seat_belt, previous_value, ec, tp, SD_Type, SD_Status, version,
         device_Network_Type, alert_datetime, immobilizer,IN1,IN2)
 
-        # current data inserting
-       
+        return (unit_no, unit_no, location_type, device_date_time, direction_in_degree, satellite, speed, lat, lon, x_acceleration,
+        y_acceleration, z_acceleration, tilt, impact, fuel_consumption, balance_fuel, hd_status, hd_size, hd_balance, ibutton_to_send,messageType, ignition, gsm_signal,
+        polling_mode, ha, hb, panic, fuel_bar, over_speed, analog, seat_belt, previous_value, ec, tp, SD_Type, SD_Status, version,
+        device_Network_Type, alert_datetime, immobilizer,IN1,IN2)
         
 
 
 if __name__=="__main__":
     process_data = AlarmDataProcessor()
     unit_no = "91006"
-    bit_data = "170B14001F09EF030000170B14001F090005000030000F00839D84050021571902000700000100000000000100010000001F0001010101030000000000001F0A000000000000000000000000010001000156DC0100000000000F0000000C000000000000003F0000000000000000000000"
+    bit_data = "170B01070D1FEF070001170B01070D1F1306000048000F00874F640300210C3606000700000600000000000600000000001F0003010101030000000000001F0400000000000000000000000001000300018C0E000000000000010104D70100000000000F0000000C000000000000003F000000000000000000000001008A7B090000000000"
     messageType = "1051"
     polling_mode = "testing"
     ha = 0
@@ -509,7 +510,7 @@ if __name__=="__main__":
     SD_Type= "testing"
     SD_Status = "testing"
     device_Network_Type = "testing"
-    alert_datetime = "2048-00-00 00:00:00"
+    alert_datetime = "2048-01-01 00:00:00"
     dt = 123
     Up0 = 123
     Dw0 = 123
@@ -521,5 +522,5 @@ if __name__=="__main__":
     Pat = 123
 
     process_data.process_alarm_service_data(unit_no, messageType, polling_mode, ha, hb, panic, fuel_bar,over_speed,analog,
-                                    seat_belt, previous_value, bit_data,version, ec, tp, event_type, SD_Type, SD_Status, device_Network_Type, 
+                                    seat_belt, previous_value, bit_data,version, ec, tp, SD_Type, SD_Status, device_Network_Type, 
                                     alert_datetime,dt, Up0, Dw0, Up1, Dw1, tm, Va, Cur, Pat)

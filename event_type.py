@@ -641,7 +641,7 @@ class AlarmEventType:
                 polling_mode = "Unknown"
                 print("other Alarm ==> #" +unit_no+"|"+event_type+"|"+tp+"|"+polling_mode+"|"+content_hex+"Other Alarm")
            
-            resprocessGpsServiceData = self.alarm_data_processor.process_alarm_service_data(unit_no, messageType, polling_mode, ha, hb, panic, fuel_bar,over_speed,analog,
+            self.alarm_data_processor.process_alarm_service_data(unit_no, messageType, polling_mode, ha, hb, panic, fuel_bar,over_speed,analog,
                                                              seat_belt, previous_value, bit_data, version, ec, tp, SD_Type, SD_Status, device_Network_Type, 
                                                              alert_datetime, dt, Up0, Dw0, Up1, Dw1, tm, Va, Cur, Pat)
 

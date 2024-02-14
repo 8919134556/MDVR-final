@@ -20,7 +20,7 @@ class DatabaseManager:
     def connect(self):
         if self._connection is None:
             config = ConfigParser()
-            config.read('mdvr_config.ini')  # Adjust the file path as needed
+            config.read('src/mdvr_config.ini')  # Adjust the file path as needed
             driver = config.get('Database', 'driver')
             server = config.get('Database', 'server')
             database = config.get('Database', 'database')
@@ -35,8 +35,8 @@ class DatabaseManager:
         y_acceleration, z_acceleration, tilt, impact, fuel_consumption, balance_fuel, hd_status, hd_size, hd_balance, ibutton_to_send, messageType, ignition, gsm_signal,
         polling_mode, ha, hb, panic, fuel_bar, over_speed, analog, seat_belt, previous_value, ec, tp, SD_Type, SD_Status, version,
         device_Network_Type, alert_datetime, immobilizer,IN1,IN2):
-        
-        
+        # logger = Logger()
+        # try:
         query = '''EXEC InsertIntoMdvrgpsandalarmdata @unit_no = ?, @vehicle_no = ?, @location_type = ?, @track_time = ?, @direction_in_degree = ?, @satellite = ?, @speed = ?, @lat = ?, @lon = ?, @x_acceleration = ?,
             @y_acceleration = ?, @z_acceleration = ?, @tilt = ?, @impact = ?, @fuel_consumption = ?, @balance_fuel = ?, @hd_status = ?, @hd_size = ?, @hd_balance = ?, @ibutton1 = ?, @message_type = ?, @ignition = ?, @gsm_signal = ?,
             @polling_mode = ?, @ha = ?, @hb = ?, @panic = ?, @fuel_bar = ?, @over_speed = ?, @analog = ?, @seat_belt = ?, @prev_value = ?,
@@ -49,16 +49,28 @@ class DatabaseManager:
                 device_Network_Type, alert_datetime, immobilizer, IN1, IN2)
 
         self._cursor.execute(query, params)
+        return True
+        
+        # except Exception as e:
+        #     # Log the error or handle it as needed
+        #     logger.log_data("insert_data", f'Error While from insert data')
+
 
     def abnormal_data(self, unit_no, device_date_time, SD_Type, SD_Status,polling_mode,update_time, status):
-        query = '''INSERT INTO [dbo].[storage_abnormal_data] (
-            unit_no, track_time, SD_Type, SD_Status, polling_mode, update_time, status
-        ) VALUES (?, ?, ?, ?, ?,  ?, ?)
-        '''
-        values = (
-            unit_no, device_date_time, SD_Type, SD_Status, polling_mode, update_time, status
-        )
-        self._cursor.execute(query, values)
+        logger = Logger()
+        try:
+            query = '''INSERT INTO [dbo].[storage_abnormal_data] (
+                unit_no, track_time, SD_Type, SD_Status, polling_mode, update_time, status
+            ) VALUES (?, ?, ?, ?, ?,  ?, ?)
+            '''
+            values = (
+                unit_no, device_date_time, SD_Type, SD_Status, polling_mode, update_time, status
+            )
+            self._cursor.execute(query, values)
+
+        except Exception as e:
+            # Log the error or handle it as needed
+            logger.log_data("insert_abnormal_data", f'Error While from insert abnormal data')
 
     
     def alarm_video_file_detailes(self,unit_no, alert_date, from_time, to_time, channel_no, 
@@ -84,7 +96,6 @@ class DatabaseManager:
         except Exception as e:
             logger.log_data("video_error", f'Error While from video download')
         
-
 
 # Example usage:
 if __name__ == "__main__":
