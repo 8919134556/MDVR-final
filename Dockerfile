@@ -1,5 +1,5 @@
-# Use an official Debian base image with Python 3.8
-FROM python:3.8-slim
+# Use an official Debian base image with Python 3.9.10
+FROM python:3.9.10-slim
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
