@@ -1,5 +1,5 @@
 # Use an official Debian base image with Python 3.8
-FROM python:3.8
+FROM python:3.8-slim
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -8,8 +8,7 @@ WORKDIR /usr/src/app
 COPY requirements.txt /usr/src/app/
 
 # Upgrade pip and install Python dependencies
-RUN python3 -m pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the remaining application files into the container
 COPY ClientHandler.py hex_converter.py logger.py mdvr_config.ini raw_data_processor.py redis_uploader.py request_command.py Response_generator.py server_Socket.py snap_shot_image_uploader.py /usr/src/app/
