@@ -7,8 +7,9 @@ WORKDIR /usr/src/app
 # Copy only the requirements file first to leverage Docker cache
 COPY requirements.txt /usr/src/app/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Upgrade pip and install Python dependencies
+RUN python3 -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy the remaining application files into the container
 COPY ClientHandler.py hex_converter.py logger.py mdvr_config.ini raw_data_processor.py redis_uploader.py request_command.py Response_generator.py server_Socket.py snap_shot_image_uploader.py /usr/src/app/
