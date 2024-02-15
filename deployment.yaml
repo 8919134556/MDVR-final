@@ -52,6 +52,10 @@ spec:
         volumeMounts:
         - name: logs-volume
           mountPath: /usr/src/app/logs
+    volumes:
+    - name: logs-volume
+      persistentVolumeClaim:
+        claimName: logs-pvc
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -59,7 +63,3 @@ spec:
       maxUnavailable: 0
   minReadySeconds: 30
   revisionHistoryLimit: 3
-  volumes:
-  - name: logs-volume
-    persistentVolumeClaim:
-      claimName: logs-pvc
