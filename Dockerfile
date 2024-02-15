@@ -9,7 +9,11 @@ COPY requirements.txt /usr/src/app/
 
 # Install required packages, including the SQL Server ODBC driver
 RUN apt-get update && \
-    pip install --no-cache-dir --use-feature=fast-deps -U pip && \
+    apt-get install -y --no-install-recommends unixodbc unixodbc-dev curl gnupg && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql17 && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy the remaining application files into the container
