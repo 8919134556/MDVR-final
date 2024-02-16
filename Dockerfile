@@ -21,4 +21,4 @@ VOLUME /usr/src/app/logs
 
 
 # Run alarm_processor.py when the container launches
-CMD ["python", "./gps_data.py"]
+CMD ["python3", "./gps_data.py"]
