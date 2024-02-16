@@ -37,7 +37,8 @@ class MDVRClientHandler(threading.Thread):
 
        
     def run(self):
-        unit_no = None 
+        unit_no = None
+        hex_data = None
         while True:
             try:
                 data = self.client_socket.recv(1024)
@@ -71,7 +72,7 @@ class MDVRClientHandler(threading.Thread):
                             except Exception as e:
                                 self.logging.log_data("M_1001_SetUp_failed", f"Failed_signal_data: {unit_no} : {hex_data}")                   
                         else:
-                            print("Error: Unable to convert hex to ASCII.")
+                            self.logging.log_data("M_1001_SetUp_faild", f"Unable to convert hex to ASCII.")
                         time.sleep(2)
                     #*********************************************************Heart Beat *********************************************
                     elif message_type == "0001":

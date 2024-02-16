@@ -24,9 +24,9 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  selector:
-    matchLabels:
-      app: mdvr-socket
+  storageClassName: ""  # Use the default storage class
+  volumeName: mdvr-logs-pv  # Manually bind to the specified PV
+
 ---
 # Deployment
 apiVersion: apps/v1
@@ -46,16 +46,16 @@ spec:
     spec:
       containers:
       - name: mdvr-socket-container
-        image: 9989228601/mdvr-socket:1
+        image: 9989228601/mdvr-socket:2
         ports:
         - containerPort: 8010
         volumeMounts:
         - name: logs-volume
           mountPath: /usr/src/app/logs
-    volumes:
-    - name: logs-volume
-      persistentVolumeClaim:
-        claimName: logs-pvc
+      volumes:
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: logs-pvc
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -63,3 +63,18 @@ spec:
       maxUnavailable: 0
   minReadySeconds: 30
   revisionHistoryLimit: 3
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mdvr-socket-service
+  namespace: mdvr-stag
+spec:
+  selector:
+    app: mdvr-socket
+  ports:
+    - protocol: TCP
+      port: 8011
+      targetPort: 8010
+  type: NodePort
