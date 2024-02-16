@@ -1,3 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gps-logs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/mcdev/GPS_logs"  # Specify the host path where data will be stored
+  persistentVolumeReclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gps-logs-pvc
+  namespace: mdvr-stag
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,6 +47,10 @@ spec:
         volumeMounts:
         - name: logs-volume
           mountPath: /usr/src/app/logs
+      volumes:
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: gps-logs-pvc
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -34,7 +66,7 @@ metadata:
   name: mdvr-gps-service
   namespace: mdvr-stag
 spec:
-  type: NodePort
+  type: ClusterIP  # Change this line to use ClusterIP
   selector:
     app: mdvr-gps
 
@@ -53,19 +85,6 @@ spec:
   limits:
       cpu: "1"
       memory: "1Gi"
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: logs-pvc
-  namespace: mdvr-stag
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
 
 ---
 apiVersion: autoscaling/v2beta2
