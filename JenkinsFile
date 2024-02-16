@@ -118,12 +118,12 @@ pipeline {
             }
             steps {
                 // Build Docker image
-                sh 'docker build -t 9989228601/MDVR-gps_4040:1 .'
+                sh 'docker build -t 9989228601/mdvr-gps_4040:1 .'
 
                 // Push Docker image to Docker Hub registry
                 withCredentials([usernamePassword(credentialsId: 'your-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                    sh 'docker push 9989228601/MDVR-gps_4040:1'
+                    sh 'docker push 9989228601/mdvr-gps_4040:1'
                 }
             }
         }
