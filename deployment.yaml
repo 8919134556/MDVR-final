@@ -307,9 +307,9 @@ metadata:
 spec:
   hard:
     pods: "2"
-    requests.cpu: "500m"
+    requests.cpu: "100m"
     requests.memory: "512Mi"
-    limits.cpu: "1"
+    limits.cpu: "500m"
     limits.memory: "1Gi"
 
 ---
