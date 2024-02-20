@@ -8,7 +8,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/mcdev/GPS_logs"  # Specify the host path where data will be stored
+    path: "/home/mcdev/GPS_logs"
   persistentVolumeReclaimPolicy: Retain
 
 ---
@@ -68,7 +68,7 @@ metadata:
   name: mdvr-gps-service
   namespace: mdvr-stag
 spec:
-  type: ClusterIP  # Change this line to use ClusterIP
+  type: ClusterIP
   selector:
     app: mdvr-gps
 
