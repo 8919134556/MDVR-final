@@ -174,18 +174,6 @@ spec:
 ---
 
 apiVersion: v1
-kind: Service
-metadata:
-  name: mdvr-gps-service
-  namespace: mdvr-stag
-spec:
-  type: ClusterIP
-  selector:
-    app: mdvr-gps
-
----
-
-apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: mdvr-gps-quota
