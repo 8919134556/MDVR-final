@@ -297,39 +297,39 @@ spec:
       port: 8011  # Example port number, replace with your actual port
       targetPort: 8011  # Example target port, replace with your actual target port
 
----
+# ---
 
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: mdvr-gps-quota
-  namespace: mdvr-stag
-spec:
-  hard:
-    pods: "2"
-    requests.cpu: "100m"
-    requests.memory: "512Mi"
-    limits.cpu: "500m"
-    limits.memory: "1Gi"
+# apiVersion: v1
+# kind: ResourceQuota
+# metadata:
+#   name: mdvr-gps-quota
+#   namespace: mdvr-stag
+# spec:
+#   hard:
+#     pods: "2"
+#     requests.cpu: "100m"
+#     requests.memory: "512Mi"
+#     limits.cpu: "500m"
+#     limits.memory: "1Gi"
 
----
+# ---
 
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: mdvr-gps-hpa
-  namespace: mdvr-stag
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: mdvr-gps-deployment
-  minReplicas: 1
-  maxReplicas: 3
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 50
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: mdvr-gps-hpa
+#   namespace: mdvr-stag
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: mdvr-gps-deployment
+#   minReplicas: 1
+#   maxReplicas: 3
+#   metrics:
+#   - type: Resource
+#     resource:
+#       name: cpu
+#       target:
+#         type: Utilization
+#         averageUtilization: 50
