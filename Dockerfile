@@ -19,6 +19,8 @@ RUN apt-get update && \
 # Create a volume for persistent data
 VOLUME /usr/src/app/logs
 
+# Expose port 8010
+EXPOSE 8011
 
 # Run alarm_processor.py when the container launches
 CMD ["python3", "./gps_data.py"]
