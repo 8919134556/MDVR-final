@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
       - name: mdvr-socket-container
-        image: 9989228601/mdvr-socket:2
+        image: 9989228601/mdvr-socket:3
         ports:
         - containerPort: 8010
         volumeMounts:
