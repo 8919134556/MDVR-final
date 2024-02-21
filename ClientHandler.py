@@ -43,7 +43,7 @@ class MDVRClientHandler(threading.Thread):
             try:
                 data = self.client_socket.recv(1024)
                 if not data:
-                    time.sleep(5)
+                    pass
                 if data:
                     hex_data = binascii.hexlify(data).decode('utf-8')
 

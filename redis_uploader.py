@@ -1,8 +1,10 @@
 import redis
 import configparser
+from logger import Logger
 
 class RedisUploader:
     def __init__(self, config_file="mdvr_config.ini"):
+        self.logging = Logger()
         self.config = configparser.ConfigParser()
         self.config.read(config_file)
         self.redis_host = self.config.get('Redis', 'host')
@@ -15,7 +17,8 @@ class RedisUploader:
         try:
             self.redis_client.rpush(redis_key, record)
         except Exception as e:
-            print(f"Error uploading record to Redis: {e}")
+            self.logging.log_data("redis_error", f"Error uploading record to Redis: {e}")  
+
 
 if __name__ == "__main__":
     # Define your test records (replace this with your dynamic data source)
@@ -24,6 +27,6 @@ if __name__ == "__main__":
     # Create an instance of RedisUploader, reading redis_key from the config
     redis_uploader = RedisUploader()
 
-    for _ in range(10):
+    for _ in range(1):
         redis_uploader.upload_record(redis_key, test_records)
     
