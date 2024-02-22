@@ -18,6 +18,7 @@ class GPSData:
         self.redis_key = self.config.get('Redis', 'key')
         self.folder_manager = FolderManager()
         self.gpsdataprocess =  GpsDataProcessor() 
+        self.previous_date_time = ''
 
     async def redis_setup(self):
         redis_host = self.config.get('Redis', 'host')
@@ -48,8 +49,8 @@ class GPSData:
             if hex_data:
                 if messageType == '1041':
                     resprocess_Gps_Service_Data = self.gpsdataprocess.process_gps_service_data(
-                        unit_no, messageType, "Normal",0,0,0,0,0,0,0,0,hex_data,version,0,0,None,None,device_Network_Type,None,0,0,0,0,0,0,0,0,0)
-
+                        unit_no, messageType, "Normal",0,0,0,0,0,0,0,0,hex_data,version,0,0,None,None,device_Network_Type,None,0,0,0,0,0,0,0,0,0,self.previous_date_time)
+                    self.previous_date_time = resprocess_Gps_Service_Data
                     message = f"{datetime.now()} - hex_data: {hex_data}, Unit: {unit_no}"
                     self.logging.log_data("1041", message)
                 else:

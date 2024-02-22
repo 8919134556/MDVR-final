@@ -1,16 +1,19 @@
 from hex_converter import HexConverter
 from db_inserting import DatabaseManager
 from datetime import datetime
+from logger import Logger
 
 
 class GpsDataProcessor:
+    
     def __init__(self):
         self.hex_converter = HexConverter()
         self.database_manager = DatabaseManager()
+        self.logging = Logger()
 
     def process_gps_service_data(self, unit_no, messageType, polling_mode, ha, hb, panic, fuel_bar,over_speed,analog,
                                     seat_belt, previous_value, bit_data,version, ec, tp, SD_Type, SD_Status, device_Network_Type, 
-                                    alert_datetime,dt, Up0, Dw0, Up1, Dw1, tm, Va, Cur, Pat):
+                                    alert_datetime,dt, Up0, Dw0, Up1, Dw1, tm, Va, Cur, Pat, previous_date_time):
         direction_in_degree = 0
         satellite = 0
         speed = 0
@@ -37,6 +40,7 @@ class GpsDataProcessor:
         immobilizer = None
         IN1 = 0
         IN2 = 0
+        
 
         try:
             if messageType == "1041":
@@ -469,11 +473,11 @@ class GpsDataProcessor:
                                 ibutton_to_send = ibutton_temp2
 
                     except Exception as e:
-                        print(e)
+                        self.logging.log_data("hex_str_error_process", e)
             else:
-                print("HEX_ERROR")
+                self.logging.log_data("HEX_ERROR", f'Hex to Str conversion error')
         except Exception as e:
-            print(e)
+            self.logging.log_data("HEX_ERROR", f'Hex to Str conversion error: {str(e)}')
         
         records = []
         records.append((unit_no, unit_no, location_type, device_date_time, direction_in_degree, satellite, speed, lat, lon, x_acceleration,
@@ -481,24 +485,22 @@ class GpsDataProcessor:
         polling_mode, ha, hb, panic, fuel_bar, over_speed, analog, seat_belt, previous_value, ec, tp, SD_Type, SD_Status, version,
         device_Network_Type, alert_datetime, immobilizer,IN1,IN2))
         
-        previous_date_time_str = ''
-        if not previous_date_time_str:
-            previous_date_time_str = device_date_time
+        
+        if not previous_date_time:
+            previous_date_time = device_date_time
         
         # Convert string representations to datetime objects
         device_date_time = datetime.strptime(device_date_time, '%Y-%m-%d %H:%M:%S')
-        previous_date_time = datetime.strptime(previous_date_time_str, '%Y-%m-%d %H:%M:%S')
+        previous_date_time = datetime.strptime(previous_date_time, '%Y-%m-%d %H:%M:%S')
         
         # Compare datetime objects
         if previous_date_time <= device_date_time:
             # current data inserting
             self.database_manager.insert_records(records)
-            previous_date_time_str = device_date_time
         else:
             self.database_manager.history_records(records)
+        return str(previous_date_time)
 
-        
-        
         
 
 
