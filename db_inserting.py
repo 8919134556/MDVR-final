@@ -2,6 +2,7 @@ import pyodbc
 from configparser import ConfigParser
 from threading import Lock
 import datetime
+from logger import Logger
 
 class DatabaseManager:
     _instance = None
@@ -20,6 +21,7 @@ class DatabaseManager:
         try:
             if self._connection is None:
                 config = ConfigParser()
+                self.logging = Logger()
                 config.read('mdvr_config.ini')  # Adjust the file path as needed
                 driver = config.get('Database', 'driver')
                 server = config.get('Database', 'server')
@@ -32,7 +34,7 @@ class DatabaseManager:
                 self._connection = pyodbc.connect(connection_string + ';Pooling=True', autocommit=True)
                 self._cursor = self._connection.cursor()
         except pyodbc.Error as e:
-            print(f"Error connecting to the database: {e}")
+            self.logging.log_data("DB_connection_error", f"Error connecting to the database: {e}")
 
     def insert_records(self, records):
         """
@@ -54,7 +56,7 @@ class DatabaseManager:
             # Using executemany for bulk insertion
             self._cursor.executemany(query, records)
         except pyodbc.Error as e:
-            print(f"Error executing SQL query: {e}")
+            self.logging.log_data("DB_connection_error", f"Error executing SQL query: {e}")
     
     def history_records(self, records):
         """
@@ -76,7 +78,29 @@ class DatabaseManager:
             # Using executemany for bulk insertion
             self._cursor.executemany(query, records)
         except pyodbc.Error as e:
-            print(f"Error executing SQL query: {e}")
+            self.logging.log_data("DB_connection_error", f"Error executing SQL query at history records: {e}")
+    
+    def current_records(self, records):
+        """
+        Bulk insert records into the database.
+        
+        Args:
+            records (list): List of tuples, where each tuple represents a set of parameters for a record.
+        """
+        query = '''EXEC InsertIntoMdvrGpsCurrentData @unit_no = ?, @vehicle_no = ?, @location_type = ?, 
+                   @track_time = ?, @direction_in_degree = ?, @satellite = ?, @speed = ?, @lat = ?, @lon = ?,
+                   @x_acceleration = ?, @y_acceleration = ?, @z_acceleration = ?, @tilt = ?, @impact = ?,
+                   @fuel_consumption = ?, @balance_fuel = ?, @hd_status = ?, @hd_size = ?, @hd_balance = ?,
+                   @ibutton1 = ?, @message_type = ?, @ignition = ?, @gsm_signal = ?, @polling_mode = ?,
+                   @ha = ?, @hb = ?, @panic = ?, @fuel_bar = ?, @over_speed = ?, @analog = ?, @seat_belt = ?,
+                   @prev_value = ?, @ec = ?, @tp = ?, @SD_Type = ?, @SD_Status = ?, @version = ?, 
+                   @Network_Type = ?, @alert_datetime = ?, @immobilizer = ?, @IN1 = ?, @IN2 = ?'''
+
+        try:
+            # Using executemany for bulk insertion
+            self._cursor.executemany(query, records)
+        except pyodbc.Error as e:
+            self.logging.log_data("DB_connection_error", f"Error executing SQL query at Current records: {e}")
 
 # Example usage:
 if __name__ == "__main__":

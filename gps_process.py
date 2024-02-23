@@ -484,22 +484,31 @@ class GpsDataProcessor:
         y_acceleration, z_acceleration, tilt, impact, fuel_consumption, balance_fuel, hd_status, hd_size, hd_balance, ibutton_to_send,messageType, ignition, gsm_signal,
         polling_mode, ha, hb, panic, fuel_bar, over_speed, analog, seat_belt, previous_value, ec, tp, SD_Type, SD_Status, version,
         device_Network_Type, alert_datetime, immobilizer,IN1,IN2))
-        
-        
-        if not previous_date_time:
-            previous_date_time = device_date_time
-        
-        # Convert string representations to datetime objects
-        device_date_time = datetime.strptime(device_date_time, '%Y-%m-%d %H:%M:%S')
-        previous_date_time = datetime.strptime(previous_date_time, '%Y-%m-%d %H:%M:%S')
-        
-        # Compare datetime objects
-        if previous_date_time <= device_date_time:
-            # current data inserting
+
+        try:
             self.database_manager.insert_records(records)
-        else:
-            self.database_manager.history_records(records)
-        return str(previous_date_time)
+        except Exception as e:
+            self.logging.log_data("gps_inserting_error", f'Error While getting into insert record: {str(e)}')
+
+        try:
+            if not previous_date_time:
+                previous_date_time = device_date_time
+            
+            # Convert string representations to datetime objects
+            device_date_time = datetime.strptime(device_date_time, '%Y-%m-%d %H:%M:%S')
+            previous_date_time = datetime.strptime(previous_date_time, '%Y-%m-%d %H:%M:%S')
+            
+            # Compare datetime objects
+            if previous_date_time <= device_date_time:
+                # current data inserting
+                self.database_manager.current_records(records)
+                previous_date_time = device_date_time
+            else:
+                self.database_manager.history_records(records)
+            return str(previous_date_time)
+        except Exception as e:
+            self.logging.log_data("gps_inserting_error", f'Error While getting into insert current and history record: {str(e)}')
+
 
         
 
