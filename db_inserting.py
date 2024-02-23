@@ -7,6 +7,9 @@ from logger import Logger
 class DatabaseManager:
     _instance = None
     _lock = Lock()
+    
+    def __init__(self):
+        self.logging = Logger()
 
     def __new__(cls):
         with cls._lock:
@@ -21,7 +24,6 @@ class DatabaseManager:
         try:
             if self._connection is None:
                 config = ConfigParser()
-                self.logging = Logger()
                 config.read('mdvr_config.ini')  # Adjust the file path as needed
                 driver = config.get('Database', 'driver')
                 server = config.get('Database', 'server')
