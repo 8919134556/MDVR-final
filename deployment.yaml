@@ -45,10 +45,10 @@ spec:
     spec:
       containers:
       - name: mdvr-gps-container
-        image: 9989228601/mdvr-gps_4040:7
+        image: 9989228601/mdvr-gps_4040:8
         volumeMounts:
         - name: logs-volume
-          mountPath: /usr/src/app/logs
+          mountPath: /usr/src/app/GPS_4040_logs
       volumes:
       - name: logs-volume
         persistentVolumeClaim:
